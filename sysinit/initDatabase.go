@@ -1,15 +1,16 @@
 package sysinit
 
 import (
-	_ "Two-Card/models"
+	_ "ticket/models"
 	// "time"
 	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-//初始化数据连接
+// 初始化数据连接
 func InitDatabase() {
 	//读取配置文件，设置数据库参数
 	//数据库类别

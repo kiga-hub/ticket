@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "Two-Card/routers"
-	_ "Two-Card/sysinit"
+	_ "ticket/routers"
+	_ "ticket/sysinit"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"

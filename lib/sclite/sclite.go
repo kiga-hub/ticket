@@ -1,55 +1,56 @@
 package sclite
 
 import (
-	"time"
-	"github.com/astaxie/beego"
-	"path/filepath"
-	"fmt"
-	"os"
-	"io"
 	"bufio"
-	"strings"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
-	"Two-Card/utils"
-	"Two-Card/lib/extend"
-	"errors"
+	"strings"
+	"ticket/lib/extend"
+	"ticket/utils"
+	"time"
+
+	"github.com/astaxie/beego"
 )
 
 type Sclite struct {
-	Pra 	[]*SclitePra
-	Snt     int 		//总句数
-	Chr		int  		//总词数
-	Corr	float64		// 正确率
-	Sub		float64		// 代替错误率
-	Del		float64		// 删除错误率
-	Ins		float64 	// 插入错误率
-	Err 	float64		// 总错误率
+	Pra  []*SclitePra
+	Snt  int     //总句数
+	Chr  int     //总词数
+	Corr float64 // 正确率
+	Sub  float64 // 代替错误率
+	Del  float64 // 删除错误率
+	Ins  float64 // 插入错误率
+	Err  float64 // 总错误率
 }
 
 type SclitePra struct {
-	Content	string
-	Corr	int
-	Sub		int
-	Del		int
-	Ins		int
-	ValidOk	bool
-	Ok 		bool
+	Content string
+	Corr    int
+	Sub     int
+	Del     int
+	Ins     int
+	ValidOk bool
+	Ok      bool
 }
 
 type AnalysisLine func([]byte) *Sclite
 
 func IsExist(f string) bool {
-    _, err := os.Stat(f)
-    return err == nil || os.IsExist(err)
+	_, err := os.Stat(f)
+	return err == nil || os.IsExist(err)
 }
 
 func CreateScliteFile(text, file string) error {
-	f, err := os.Create(file) 
+	f, err := os.Create(file)
 	if err != nil {
 		return err
 	}
-	_, err = io.WriteString(f, fmt.Sprintf("%s\n", text)) 
+	_, err = io.WriteString(f, fmt.Sprintf("%s\n", text))
 	if err != nil {
 		return err
 	}
@@ -68,21 +69,21 @@ func processLine(line []byte) *Sclite {
 	var s Sclite
 	s.Snt, _ = strconv.Atoi(res[0])
 	s.Chr, _ = strconv.Atoi(res[1])
-	s.Corr, _ =  strconv.ParseFloat(res[2], 64)
-	s.Sub, _ =  strconv.ParseFloat(res[3], 64)
-	s.Del, _ =  strconv.ParseFloat(res[4], 64)
-	s.Ins, _ =  strconv.ParseFloat(res[5], 64)
-	s.Err, _ =  strconv.ParseFloat(res[6], 64)
+	s.Corr, _ = strconv.ParseFloat(res[2], 64)
+	s.Sub, _ = strconv.ParseFloat(res[3], 64)
+	s.Del, _ = strconv.ParseFloat(res[4], 64)
+	s.Ins, _ = strconv.ParseFloat(res[5], 64)
+	s.Err, _ = strconv.ParseFloat(res[6], 64)
 	return &s
 }
-   
+
 func ReadLine(filePth string, hookfn AnalysisLine) (*Sclite, error) {
 	f, err := os.Open(filePth)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-   
+
 	bfRd := bufio.NewReader(f)
 	for {
 		line, err := bfRd.ReadBytes('\n')
@@ -107,7 +108,7 @@ func AnalysisSclitePra(hyppath string) (*SclitePra, error) {
 		return nil, err
 	}
 	defer f.Close()
-   
+
 	var result SclitePra
 	var ref []string
 	var hyp []string
@@ -132,7 +133,7 @@ func AnalysisSclitePra(hyppath string) (*SclitePra, error) {
 		}
 		// 解析ref
 		if strings.Contains(data, "REF:") {
-			ref_tmp := strings.Split(data[6:], " ")	
+			ref_tmp := strings.Split(data[6:], " ")
 			for _, s := range ref_tmp {
 				if s == "" {
 					continue
@@ -142,7 +143,7 @@ func AnalysisSclitePra(hyppath string) (*SclitePra, error) {
 		}
 		// 解析hyp
 		if strings.Contains(data, "HYP:") {
-			hyp_tmp := strings.Split(data[6:], " ")	
+			hyp_tmp := strings.Split(data[6:], " ")
 			for _, s := range hyp_tmp {
 				if s == "" {
 					continue
@@ -157,7 +158,7 @@ func AnalysisSclitePra(hyppath string) (*SclitePra, error) {
 	}
 	var content []string
 	for i, c := range ref {
-		if i >= result.Corr + result.Sub + result.Del + result.Ins {
+		if i >= result.Corr+result.Sub+result.Del+result.Ins {
 			break
 		}
 		if c == "***" {
@@ -179,7 +180,6 @@ func AnalysisSclitePra(hyppath string) (*SclitePra, error) {
 	return &result, nil
 }
 
-
 func AnalysisScliteSys(hyppath string) *Sclite {
 	syspath := fmt.Sprintf("%s.sys", hyppath)
 	if !IsExist(syspath) {
@@ -194,7 +194,7 @@ func AnalysisScliteSys(hyppath string) *Sclite {
 	return s
 }
 
-func ScliteText(reftext, hyptext string) (*SclitePra, error ){
+func ScliteText(reftext, hyptext string) (*SclitePra, error) {
 	if reftext == "" || hyptext == "" {
 		return nil, errors.New("sclite null string")
 	}
@@ -259,13 +259,13 @@ func ScliteTextGrid(refgrid, hypgrid interface{}, offset float64) *Sclite {
 
 			// 寻找对应比对段
 			h := hyp.(map[string]interface{})
-			if h["seconds"].(float64) < r["seconds"].(float64) - offset || h["seconds"].(float64) > r["seconds"].(float64) + offset {
+			if h["seconds"].(float64) < r["seconds"].(float64)-offset || h["seconds"].(float64) > r["seconds"].(float64)+offset {
 				continue
 			}
 
 			find = true
 			findIndex = i
-			pra.Ok = true // 时间分隔线有效
+			pra.Ok = true      // 时间分隔线有效
 			pra.ValidOk = true // 默认有效性正确
 
 			h_str := StringReplace(h["content"].(string))
@@ -278,7 +278,7 @@ func ScliteTextGrid(refgrid, hypgrid interface{}, offset float64) *Sclite {
 					pra.Ins, _ = GetWordCount(h_str) // 全部插入错误
 				}
 				pra.Content = fmt.Sprintf("<i>%s</i><b>%s<b>", h_str, r_str)
-			} else if r["valid"].(string)  == "0" {
+			} else if r["valid"].(string) == "0" {
 				// 无效段比对
 				if h_str != r_str {
 					// pra.Sub = 1 // 全部修改错误
@@ -287,7 +287,7 @@ func ScliteTextGrid(refgrid, hypgrid interface{}, offset float64) *Sclite {
 					// pra.Corr = 1 // 全部正确
 					pra.Content = r_str
 				}
-			} else if r_str == h_str  {
+			} else if r_str == h_str {
 				pra.Corr, _ = GetWordCount(r_str) // 全部正确
 				pra.Content = r_str
 			} else if r_str == "" {
@@ -310,7 +310,7 @@ func ScliteTextGrid(refgrid, hypgrid interface{}, offset float64) *Sclite {
 			break
 		}
 		if !find {
-			if r["valid"].(string)  == "0" {
+			if r["valid"].(string) == "0" {
 				// pra.Del = 1 // 全部删除错误
 				pra.Content = fmt.Sprintf("<b>%s</b>", r_str)
 			} else {
@@ -324,7 +324,7 @@ func ScliteTextGrid(refgrid, hypgrid interface{}, offset float64) *Sclite {
 		return &Sclite{Corr: 100}
 	}
 	s := Sclite{
-		Pra : corr,
+		Pra: corr,
 		Snt: 1,
 	}
 
@@ -340,10 +340,10 @@ func ScliteTextGrid(refgrid, hypgrid interface{}, offset float64) *Sclite {
 	}
 	Chr := Corr + Sub + Del
 	if Chr > 0 {
-		s.Sub = float64(Sub)*100 / float64(Chr)
-		s.Del = float64(Del)*100 / float64(Chr)
-		s.Ins = float64(Ins)*100 / float64(Chr)
-		s.Err = float64(Ins+Sub+Del)*100 / float64(Chr)
+		s.Sub = float64(Sub) * 100 / float64(Chr)
+		s.Del = float64(Del) * 100 / float64(Chr)
+		s.Ins = float64(Ins) * 100 / float64(Chr)
+		s.Err = float64(Ins+Sub+Del) * 100 / float64(Chr)
 		s.Chr = Chr
 	} else if Ins > 0 {
 		s.Ins = 100

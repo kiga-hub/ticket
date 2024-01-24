@@ -1,7 +1,7 @@
 package sysinit
 
 import (
-	"Two-Card/utils"
+	"ticket/utils"
 	"time"
 
 	"github.com/astaxie/beego"

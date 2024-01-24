@@ -4,7 +4,7 @@
  * @LastEditTime: 2020-03-23 17:59:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
- * @FilePath: \Two-Card\utils\sort.go
+ * @FilePath: \ticket\utils\sort.go
  */
 package utils
 

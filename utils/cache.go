@@ -26,7 +26,7 @@ func InitCache() {
 		}
 	}()
 	mstr := map[string]string{}
-	mstr["key"] = "Two-Card"
+	mstr["key"] = "ticket"
 	mstr["conn"] = host
 	mstr["dbNum"] = "0"
 	if passWord != "" {
@@ -113,7 +113,6 @@ func DelCache(key string) error {
 
 // Encode
 // 用gob进行数据编码
-//
 func Encode(data interface{}) (interface{}, error) {
 	switch data.(type) {
 	case int:
@@ -130,7 +129,6 @@ func Encode(data interface{}) (interface{}, error) {
 
 // Decode
 // 用gob进行数据解码
-//
 func Decode(data []byte, to interface{}) error {
 	if count, err := strconv.Atoi(string(data)); err == nil {
 		*to.(*int) = count

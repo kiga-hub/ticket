@@ -1,0 +1,6 @@
+*.exe
+ticket
+logs/
+*.tmp
+*.zip
+swagger/

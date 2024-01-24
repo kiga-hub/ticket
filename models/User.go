@@ -1,34 +1,35 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
 	"time"
+
+	"github.com/astaxie/beego/orm"
 )
 
-// init 初始化
+// init -
 func init() {
 	orm.RegisterModel(new(User))
 }
 
-//UserTBName .
+// UserTBName -
 func UserTBName() string {
 	table := "user"
 	return table
 }
 
-// TableName 设置User表名
+// TableName -
 func (a *User) TableName() string {
 	return UserTBName()
 }
 
-// UserQueryParam 用于查询的类
+// UserQueryParam -
 type UserQueryParam struct {
 	BaseQueryParam
-	SearchLike string //模糊查询
+	SearchLike string
 	NameLike   string
 }
 
-// User 实体类
+// User -
 type User struct {
 	UserId  string `orm:"size(50);pk"`
 	Name    string `orm:"size(50)"`
@@ -36,7 +37,6 @@ type User struct {
 	Mobile  string `orm:"size(36)"`
 	Address string `orm:"size(100)"`
 
-	VoicePrint string
 	Major      string
 	Role       int
 	Department string
@@ -47,7 +47,7 @@ type User struct {
 	Post         string `orm:"size(50)"`
 	Safetybelt   string `orm:"size(50)"`
 	Safetyhelmet string `orm:"size(50)"`
-	//Roles              []*Role         `orm:"rel(m2m);"` // 设置多对多
+	//Roles              []*Role         `orm:"rel(m2m);"` // =
 	CreateDatetime time.Time `orm:"auto_now_add;type(datetime)"`
 	UpdateDatetime time.Time `orm:"auto_now;type(datetime)"`
 
@@ -55,11 +55,11 @@ type User struct {
 	Expires int64  `orm:"-"`
 }
 
-// UserPageList 获取分页数据
+// UserPageList -
 func UserPageList(params *UserQueryParam, curUser *User) ([]*User, int64) {
 	query := orm.NewOrm().QueryTable(UserTBName()).Distinct()
 	data := make([]*User, 0)
-	//默认排序
+	// default sort
 	sortorder := "UserId"
 	switch params.Sort {
 	case "UserId":
@@ -92,7 +92,7 @@ func UserPageList(params *UserQueryParam, curUser *User) ([]*User, int64) {
 	return data, total
 }
 
-// UserOne 根据id获取单条
+// UserOne -
 func UserOne(id string) (*User, error) {
 	o := orm.NewOrm()
 	m := User{UserId: id}
@@ -103,7 +103,7 @@ func UserOne(id string) (*User, error) {
 	return &m, nil
 }
 
-//UserOneByCheck 获取单条
+// UserOneByCheck -
 func UserOneByCheck(login, userpwd string) (*User, error) {
 	m := User{}
 	O := orm.NewOrm()
@@ -127,7 +127,7 @@ func UserOneByCheck(login, userpwd string) (*User, error) {
 	return &m, nil
 }
 
-//UserOneByMobile 根据手机号密码获取单条 .
+// UserOneByMobile -
 func UserOneByMobile(mobile string) (*User, error) {
 	m := User{}
 	O := orm.NewOrm()
@@ -141,7 +141,7 @@ func UserOneByMobile(mobile string) (*User, error) {
 	return &m, nil
 }
 
-//UserOneByName .
+// UserOneByName .
 func UserOneByName(name string) (*User, error) {
 	m := User{}
 	O := orm.NewOrm()

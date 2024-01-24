@@ -4,24 +4,24 @@ import (
 	"fmt"
 	"time"
 
-	"Two-Card/enums"
-	"Two-Card/models"
-	"Two-Card/utils"
 	"encoding/json"
+	"ticket/enums"
+	"ticket/models"
+	"ticket/utils"
 
 	"github.com/astaxie/beego"
 	"github.com/dgrijalva/jwt-go"
 )
 
-//BaseController .
+// BaseController .
 type BaseController struct {
 	beego.Controller
-	controllerName     string                 // 当前控制名称
-	actionName         string                 // 当前action名称
-	curUser            models.User            // 当前用户信息
-	param              map[string]interface{} // 请求参数
-	dataRoot           string                 // 数据目录
-	homeRoot           string                 // 后端家目录
+	controllerName     string
+	actionName         string
+	curUser            models.User
+	param              map[string]interface{}
+	dataRoot           string
+	homeRoot           string
 	workvoiceRoot      string
 	operatevoiceRoot   string
 	workRoot           string
@@ -35,22 +35,22 @@ type BaseController struct {
 }
 
 /**
- * @description: 在每个控制器的Prepare中调用
+ * @description: -
  */
 func (c *BaseController) Prepare() {
-	// 获取请求API对应的控制器名、执行函数名
+	// Get the controller name and execution function name corresponding to the requested API
 	c.controllerName, c.actionName = c.GetControllerAndAction()
 
-	// 从Redis里获取数据 设置用户信息
+	// get data from redis. set user info
 	c.adapterCacheUserInfo()
 
-	// 获取请求参数
+	// -
 	c.jsonRequest()
 
-	// 获取配置文件中的数据目录
+	// -
 	c.dataRoot = beego.AppConfig.String("dataroot")
 
-	// 获取配置文件中的家目录
+	// -
 	c.homeRoot = beego.AppConfig.String("homeroot")
 	c.workvoiceRoot = beego.AppConfig.String("workvoiceroot")
 	c.operatevoiceRoot = beego.AppConfig.String("operatevoiceroot")
@@ -66,43 +66,43 @@ func (c *BaseController) Prepare() {
 }
 
 /**
- * @description: 生成Token字符串
- * @param {用户数据}
- * @return: Token字符串
+ * @description: generate Token string
+ * @param {user info}
+ * @return: Token string
  */
 func (c *BaseController) getTokenStr(user *models.User) string {
-	// 自定义一个key
+	// key
 	keyInfo := "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()"
 
-	// 将部分用户信息保存到map并转换为json
+	// map2key
 	info := map[string]interface{}{}
 	info["UserId"] = user.UserId
 	dataByte, _ := json.Marshal(info)
 	var dataStr = string(dataByte)
 
-	// Token过期时间
+	// Token expire time
 	expiresAt := time.Now().Unix() + user.Expires
 
-	// 使用Claim保存json
+	// using Claim to save json
 	data := jwt.StandardClaims{Subject: dataStr, ExpiresAt: expiresAt}
 	tokenInfo := jwt.NewWithClaims(jwt.SigningMethodHS256, data)
 
-	//生成token字符串
+	// generate token string
 	tokenStr, _ := tokenInfo.SignedString([]byte(keyInfo))
 	//utils.LogDebug(fmt.Sprintf("uid:%s,expires:%d,token:%s", user.Id, user.Expires,tokenStr))
 	return tokenStr
 }
 
 /**
- * @description: 验证Token字符串
+ * @description: vertification Token
  */
 func (c *BaseController) checkTokenStr(tokenStr string) bool {
-	//将token字符串转换为token对象
+	// convert token to object type
 	tokenInfo, _ := jwt.Parse(tokenStr, func(token *jwt.Token) (i interface{}, e error) {
 		return token, nil
 	})
 
-	// 校验错误（基本）
+	// verify
 	err := tokenInfo.Claims.Valid()
 	if err != nil {
 		return false
@@ -110,12 +110,12 @@ func (c *BaseController) checkTokenStr(tokenStr string) bool {
 
 	finToken := tokenInfo.Claims.(jwt.MapClaims)
 
-	// 校验下token是否过期
+	// verify
 	if !finToken.VerifyExpiresAt(time.Now().Unix(), true) {
 		return false
 	}
 
-	// 获取token中保存的用户信息
+	// -
 	sub := finToken["sub"].(string)
 	var tokenData map[string]interface{}
 	json.Unmarshal([]byte(sub), &tokenData)
@@ -123,7 +123,7 @@ func (c *BaseController) checkTokenStr(tokenStr string) bool {
 		return false
 	}
 
-	// 判断用户ID
+	// -
 	if c.curUser.UserId != tokenData["UserId"].(string) {
 		return false
 	}
@@ -131,7 +131,7 @@ func (c *BaseController) checkTokenStr(tokenStr string) bool {
 }
 
 /**
- * @description: checkLogin判断用户是否登录，在BaseController.Prepare()后执行
+ * @description: checkLogin 判断用户是否登录，在BaseController.Prepare()后执行
  * @param {type}
  * @return:
  */
@@ -145,7 +145,7 @@ func (c *BaseController) checkLogin() {
 }
 
 // checkLogin判断用户是否有权访问某地址，无权则会跳转到错误页面
-//一定要在BaseController.Prepare()后执行
+// 一定要在BaseController.Prepare()后执行
 // 会调用checkLogin
 // 传入的参数为忽略权限控制的Action
 func (c *BaseController) checkAuthor(ignores ...string) {
@@ -197,8 +197,8 @@ func (c *BaseController) adapterCacheUserInfo() {
 }
 
 // /**
-//  * @description: 获取用户信息（包括资源UrlFor）保存至redis
-//  */
+//   - @description: 获取用户信息（包括资源UrlFor）保存至redis
+//     */
 func (c *BaseController) setUser2Cache(user *models.User) error {
 	// 获取这个用户能获取到的所有资源列表
 	// resourceList := models.ResourceTreeGridByUserId(user.Id, 1000)

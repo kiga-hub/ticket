@@ -13,7 +13,7 @@ var consoleLogs *logs.BeeLogger
 // fileLogs 生产环境下日志
 var fileLogs *logs.BeeLogger
 
-//运行方式
+// 运行方式
 var runmode string
 
 func InitLogs() {
@@ -25,7 +25,7 @@ func InitLogs() {
 	fileLogs = logs.NewLogger(10000)
 	fileLogs.EnableFuncCallDepth(true)
 	level := beego.AppConfig.String("logs::level")
-	fileLogs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/Two-Card.log",
+	fileLogs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/ticket.log",
 		"separate":["emergency", "alert", "critical", "error", "warning", "notice", "info", "debug"],
 		"level":`+level+`,
 		"daily":true,
@@ -65,7 +65,7 @@ func LogTrace(v interface{}) {
 	log("trace", v)
 }
 
-//Log 输出日志
+// Log 输出日志
 func log(level, v interface{}) {
 	format := "%s"
 	if level == "" {
