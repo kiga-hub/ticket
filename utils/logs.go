@@ -7,19 +7,18 @@ import (
 	"github.com/astaxie/beego/logs"
 )
 
-// consoleLogs开发模式下日志
+// consoleLogs development mode
 var consoleLogs *logs.BeeLogger
 
-// fileLogs 生产环境下日志
+// fileLogs production mode
 var fileLogs *logs.BeeLogger
 
-// 运行方式
 var runmode string
 
 func InitLogs() {
 	consoleLogs = logs.NewLogger(1)
 	consoleLogs.SetLogger(logs.AdapterConsole)
-	consoleLogs.Async() //异步
+	consoleLogs.Async()
 	consoleLogs.EnableFuncCallDepth(true)
 
 	fileLogs = logs.NewLogger(10000)
@@ -30,7 +29,7 @@ func InitLogs() {
 		"level":`+level+`,
 		"daily":true,
 		"maxdays":10}`)
-	fileLogs.Async() //异步
+	fileLogs.Async()
 	runmode = strings.TrimSpace(strings.ToLower(beego.AppConfig.String("runmode")))
 	if runmode == "" {
 		runmode = "dev"
@@ -65,7 +64,7 @@ func LogTrace(v interface{}) {
 	log("trace", v)
 }
 
-// Log 输出日志
+// Log -
 func log(level, v interface{}) {
 	format := "%s"
 	if level == "" {

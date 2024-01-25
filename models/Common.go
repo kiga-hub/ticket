@@ -2,14 +2,14 @@ package models
 
 import "ticket/enums"
 
-// JsonResult 用于返回ajax请求的基类
+// JsonResult Base struuct used to return ajax requests
 type JsonResult struct {
 	Code enums.JsonResultCode `json:"code"`
 	Msg  string               `json:"msg"`
 	Data interface{}          `json:"data"`
 }
 
-// BaseQueryParam 用于查询的类
+// BaseQueryParam struuct used for querying
 type BaseQueryParam struct {
 	Sort   string `json:"Sort"`
 	Order  string `json:"Order"`

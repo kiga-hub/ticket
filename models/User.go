@@ -42,7 +42,7 @@ type User struct {
 	Department string
 	Gender     int
 	IdCard     string
-	VoiceUrl   string
+	Url        string
 
 	Post         string `orm:"size(50)"`
 	Safetybelt   string `orm:"size(50)"`
@@ -81,7 +81,7 @@ func UserPageList(params *UserQueryParam, curUser *User) ([]*User, int64) {
 				).Or(
 					"Mobile__icontains", params.SearchLike,
 				).Or(
-					"VoicePrint__contains", params.SearchLike,
+					"Url__contains", params.SearchLike,
 				),
 			),
 		)

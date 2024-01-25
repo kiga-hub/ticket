@@ -10,17 +10,17 @@ import (
 
 func main() {
 	var FilterGateWay = func(ctx *context.Context) {
-		//允许访问源
+		// Allow access source
 		ctx.ResponseWriter.Header().Set(
 			"Access-Control-Allow-Origin",
 			"*",
 		)
-		//允许post访问
+		// Allow  POST access
 		ctx.ResponseWriter.Header().Set(
 			"Access-Control-Allow-Methods",
 			"POST, GET, OPTIONS, PUT, DELETE,UPDATE",
 		)
-		//header的类型
+		// the type of header
 		ctx.ResponseWriter.Header().Set(
 			"Access-Control-Allow-Headers",
 			"Authorization, Content-Length, X-CSRF-Token, Token,session,X_Requested_With,Accept, Origin, "+

@@ -171,8 +171,8 @@ func (c *UserController) PageList() {
 	page, _ := strconv.Atoi(c.param["Page"].(string))
 	params.Offset = limit * (page - 1)
 
-	if _, ok := c.param["VoicePrint"]; ok {
-		params.SearchLike = c.param["VoicePrint"].(string)
+	if _, ok := c.param["Url"]; ok {
+		params.SearchLike = c.param["Url"].(string)
 	}
 
 	data, total := models.UserPageList(&params, &c.curUser)
@@ -194,7 +194,6 @@ func (c *UserController) PageList() {
 			"Department": row.Department,
 			"Gender":     row.Gender,
 			"IdCard":     row.IdCard,
-			"VoiceUrl":   row.VoiceUrl,
 		}
 		rows = append(rows, one)
 	}
@@ -208,11 +207,11 @@ func (c *UserController) Donwload() {
 	if err != nil {
 		c.jsonResult(enums.JRCodeRequestError, "Donwload failed", "")
 	}
-	filepath := c.curUser.VoiceUrl
+	filepath := c.curUser.Url
 	name := path.Base(filepath)
 	c.Ctx.Output.Download(filepath, name)
 	c.jsonResult(enums.JRCodeSucc, "Download successful", map[string]interface{}{
-		"Url":  c.curUser.VoiceUrl,
+		"Url":  c.curUser.Url,
 		"Name": name,
 	})
 }
@@ -241,7 +240,7 @@ func (c *UserController) Upload() {
 	}
 
 	oM, err := models.UserOneByName(c.curUser.Name)
-	oM.VoiceUrl = fpath
+	oM.Url = fpath
 	o := orm.NewOrm()
 	if _, err := o.Update(oM); err != nil {
 		c.jsonResult(enums.JRCodeRequestError, "File upload failed", map[string]interface{}{

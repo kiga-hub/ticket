@@ -16,22 +16,11 @@ import (
 // BaseController .
 type BaseController struct {
 	beego.Controller
-	controllerName     string
-	actionName         string
-	curUser            models.User
-	param              map[string]interface{}
-	dataRoot           string
-	homeRoot           string
-	workvoiceRoot      string
-	operatevoiceRoot   string
-	workRoot           string
-	operateRoot        string
-	videoRoot          string
-	tmpRoot            string
-	workordinary       string
-	workcommandword    string
-	operateordinary    string
-	operatecommandword string
+	controllerName string
+	actionName     string
+	curUser        models.User
+	param          map[string]interface{}
+	dataRoot       string
 }
 
 /**
@@ -49,19 +38,6 @@ func (c *BaseController) Prepare() {
 
 	// -
 	c.dataRoot = beego.AppConfig.String("dataroot")
-
-	// -
-	c.homeRoot = beego.AppConfig.String("homeroot")
-	c.workvoiceRoot = beego.AppConfig.String("workvoiceroot")
-	c.operatevoiceRoot = beego.AppConfig.String("operatevoiceroot")
-	c.workRoot = beego.AppConfig.String("workroot")
-	c.operateRoot = beego.AppConfig.String("operateroot")
-	c.videoRoot = beego.AppConfig.String("videoroot")
-	c.tmpRoot = beego.AppConfig.String("tmproot")
-	c.workordinary = beego.AppConfig.String("workordinaryroot")
-	c.workcommandword = beego.AppConfig.String("workcommandwordroot")
-	c.operateordinary = beego.AppConfig.String("operateordinaryroot")
-	c.operatecommandword = beego.AppConfig.String("operatecommandwordroot")
 
 }
 
@@ -94,93 +70,7 @@ func (c *BaseController) getTokenStr(user *models.User) string {
 }
 
 /**
- * @description: vertification Token
- */
-func (c *BaseController) checkTokenStr(tokenStr string) bool {
-	// convert token to object type
-	tokenInfo, _ := jwt.Parse(tokenStr, func(token *jwt.Token) (i interface{}, e error) {
-		return token, nil
-	})
-
-	// verify
-	err := tokenInfo.Claims.Valid()
-	if err != nil {
-		return false
-	}
-
-	finToken := tokenInfo.Claims.(jwt.MapClaims)
-
-	// verify
-	if !finToken.VerifyExpiresAt(time.Now().Unix(), true) {
-		return false
-	}
-
-	// -
-	sub := finToken["sub"].(string)
-	var tokenData map[string]interface{}
-	json.Unmarshal([]byte(sub), &tokenData)
-	if _, ok := tokenData["UserId"]; !ok {
-		return false
-	}
-
-	// -
-	if c.curUser.UserId != tokenData["UserId"].(string) {
-		return false
-	}
-	return true
-}
-
-/**
- * @description: checkLogin 判断用户是否登录，在BaseController.Prepare()后执行
- * @param {type}
- * @return:
- */
-func (c *BaseController) checkLogin() {
-	// 判断用户
-	if c.curUser.UserId == "" {
-		c.jsonResult(enums.JRCodeSucc, "未登录", map[string]string{
-			"error": "用户信息未找到",
-		})
-	}
-}
-
-// checkLogin判断用户是否有权访问某地址，无权则会跳转到错误页面
-// 一定要在BaseController.Prepare()后执行
-// 会调用checkLogin
-// 传入的参数为忽略权限控制的Action
-func (c *BaseController) checkAuthor(ignores ...string) {
-	//如果Action在忽略列表里，则直接通用
-	for _, ignore := range ignores {
-		if ignore == c.actionName {
-			return
-		}
-	}
-
-	// 登录检查
-	c.checkLogin()
-
-	//Token检查
-	token := c.Ctx.Input.Header("Token")
-	if !c.checkTokenStr(c.Ctx.Input.Header("Token")) {
-		utils.DelCache(token)
-		c.jsonResult(enums.JRCodeSucc, "未登录", map[string]string{
-			"error": "token错误",
-		})
-	}
-}
-
-/**
- * @description: 从sesssion里取用户信息, 没有使用
- */
-func (c *BaseController) adapterSessionUserInfo() {
-	a := c.GetSession("user")
-	if a != nil {
-		c.curUser = a.(models.User)
-	}
-}
-
-/**
- * @description: 从cache里取用户信息
+ * @description: get user info from cache
  */
 func (c *BaseController) adapterCacheUserInfo() {
 	token := c.Ctx.Input.Header("Token")
@@ -197,10 +87,9 @@ func (c *BaseController) adapterCacheUserInfo() {
 }
 
 // /**
-//   - @description: 获取用户信息（包括资源UrlFor）保存至redis
+//   - @description: Get user information (including resource UrlFor) and save it to Redis
 //     */
 func (c *BaseController) setUser2Cache(user *models.User) error {
-	// 获取这个用户能获取到的所有资源列表
 	// resourceList := models.ResourceTreeGridByUserId(user.Id, 1000)
 	// for _, item := range resourceList {
 	// 	user.ResourceUrlForList = append(user.ResourceUrlForList, strings.TrimSpace(item.UrlFor))
@@ -213,7 +102,7 @@ func (c *BaseController) setUser2Cache(user *models.User) error {
 }
 
 /**
- * @description: 返回结果JSON
+ * @description: return json result
  */
 func (c *BaseController) jsonResult(code enums.JsonResultCode, msg string, data interface{}) {
 	r := &models.JsonResult{
@@ -237,7 +126,7 @@ func (c *BaseController) jsonResult(code enums.JsonResultCode, msg string, data 
 }
 
 /**
- * @description: 请求参数JSON获取
+ * @description: json request
  */
 func (c *BaseController) jsonRequest() {
 	json.Unmarshal(c.Ctx.Input.RequestBody, &c.param)
@@ -245,7 +134,7 @@ func (c *BaseController) jsonRequest() {
 }
 
 /**
- * @description: 检查必选参数
+ * @description: Check mandatory parameters
  */
 func (c *BaseController) checkParams(request []string) bool {
 	for _, item := range request {

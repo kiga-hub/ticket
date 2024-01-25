@@ -60,7 +60,7 @@ func SetCache(key string, value interface{}, timeout int) error {
 	err = cc.Put(key, data, timeouts)
 	if err != nil {
 		LogError(err)
-		LogError("SetCache失败，key:" + key)
+		LogError("Set cache failed, key:" + key)
 		return err
 	} else {
 		return nil
@@ -81,13 +81,13 @@ func GetCache(key string, to interface{}) error {
 
 	data := cc.Get(key)
 	if data == nil {
-		return errors.New("Cache不存在")
+		return errors.New("Cache does not exist")
 	}
 
 	err := Decode(data.([]byte), to)
 	if err != nil {
 		LogError(err)
-		LogError("GetCache失败，key:" + key)
+		LogError("Get Cache failed, key:" + key)
 	}
 	return nil
 }
@@ -105,14 +105,14 @@ func DelCache(key string) error {
 	}()
 	err := cc.Delete(key)
 	if err != nil {
-		return errors.New("Cache删除失败")
+		return errors.New("Cache delete failed")
 	} else {
 		return nil
 	}
 }
 
 // Encode
-// 用gob进行数据编码
+// To use gob for data encoding
 func Encode(data interface{}) (interface{}, error) {
 	switch data.(type) {
 	case int:
@@ -128,7 +128,7 @@ func Encode(data interface{}) (interface{}, error) {
 }
 
 // Decode
-// 用gob进行数据解码
+// To use gob for data decoding
 func Decode(data []byte, to interface{}) error {
 	if count, err := strconv.Atoi(string(data)); err == nil {
 		*to.(*int) = count
