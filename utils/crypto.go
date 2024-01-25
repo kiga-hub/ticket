@@ -23,16 +23,16 @@ func RandomString(length int) string {
 	// 48 ~ 57 numbers
 	// 65 ~ 90 A ~ Z
 	// 97 ~ 122 a ~ z
-	rand.Seed(time.Now().UnixNano())
+	randGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	result := make([]string, 0, length)
 	for i := 0; i < length; i++ {
-		t := rand.Intn(62)
+		t := randGenerator.Intn(62)
 		if t < 10 {
-			result = append(result, strconv.Itoa(rand.Intn(10)))
+			result = append(result, strconv.Itoa(randGenerator.Intn(10)))
 		} else if t < 36 {
-			result = append(result, string(rand.Intn(26)+65))
+			result = append(result, fmt.Sprintf("%c", randGenerator.Intn(26)+65))
 		} else {
-			result = append(result, string(rand.Intn(26)+97))
+			result = append(result, fmt.Sprintf("%c", randGenerator.Intn(26)+97))
 		}
 	}
 	return strings.Join(result, "")
